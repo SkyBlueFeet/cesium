@@ -1,15 +1,16 @@
 /*
  * @Date: 2020-09-13 15:05:04
  * @LastEditors: skyblue
- * @LastEditTime: 2020-09-13 23:49:12
+ * @LastEditTime: 2020-09-14 01:00:16
  * @repository: https://github.com/SkyBlueFeet
  */
 import webpack from "webpack";
 import * as utils from "../utils";
 import CoptWebpackPlugin from "copy-webpack-plugin";
 import path from "path";
+import { environment } from "./.";
 
-const cesiumWebpackConfig = (env: env): webpack.Configuration => {
+const cesiumWebpackConfig = (env: environment): webpack.Configuration => {
   const result: webpack.Configuration = {
     output: {
       sourcePrefix: ""

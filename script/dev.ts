@@ -9,6 +9,7 @@ import webpack, { Configuration } from "webpack";
 
 process.env.NODE_ENV = "development";
 
+// eslint-disable-next-line import/first
 import index from "../config";
 
 index("development")

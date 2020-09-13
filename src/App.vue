@@ -7,13 +7,10 @@
 <script lang="tsx">
 import Vue, { CreateElement, VNode } from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import README from "@root//README.md";
 
 @Component
 export default class App extends Vue {
-  created(): void {
-    console.log(README);
-  }
+  created(): void {}
 
   render(h: CreateElement): VNode {
     return (

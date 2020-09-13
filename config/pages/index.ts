@@ -1,13 +1,14 @@
 /*
  * @Date: 2020-09-13 11:09:03
  * @LastEditors: skyblue
- * @LastEditTime: 2020-09-13 23:49:52
+ * @LastEditTime: 2020-09-14 01:01:00
  * @repository: https://github.com/SkyBlueFeet
  */
 import { Entry, Configuration, Plugin } from "webpack";
 import HtmlWebpackPlugin, { Options as HtmlOption } from "html-webpack-plugin";
 import vue from "./vue";
 import { resolve } from "../utils";
+import { environment } from "../assembly";
 
 export interface PreOption {
   rel: "preload";
@@ -34,7 +35,7 @@ export interface MixingPages {
  * @param { env } env 运行模式
  * @returns { Plugin }
  */
-function CreatePage(Option: HtmlOption, env: env): Plugin {
+function CreatePage(Option: HtmlOption, env: environment): Plugin {
   Option = {
     filename: "index.html",
     inject: true,
@@ -56,7 +57,7 @@ function CreatePage(Option: HtmlOption, env: env): Plugin {
   });
 }
 
-export default function(env: env): MixingPages {
+export default function(env: environment): MixingPages {
   const entries = {
     ...vue(env).entries
   };

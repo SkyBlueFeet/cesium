@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-03-16 12:46:50
  * @LastEditors: skyblue
- * @LastEditTime: 2020-09-13 23:38:38
+ * @LastEditTime: 2020-09-14 00:59:13
  * @repository: https://github.com/SkyBlueFeet
  */
 import webpack, { Configuration } from "webpack";
@@ -18,9 +18,11 @@ import production from "./webpack.prod.conf";
 import webpackMerge from "webpack-merge";
 import cesiumWebpackConfig from "./webpack.cesium.conf";
 
+export type environment = "development" | "production" | "testing";
+
 export const WebpackBaseConfig: Configuration = {
   context: utils.resolve(),
-  entry: pages(process.env.NODE_ENV as env).entries,
+  entry: pages(process.env.NODE_ENV as environment).entries,
   output: {
     path: config.build.assetsRoot,
     filename: "[name].js",
@@ -43,7 +45,7 @@ export const WebpackBaseConfig: Configuration = {
     new webpack.DefinePlugin({
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV)
     }),
-    ...pages(process.env.NODE_ENV as env).html,
+    ...pages(process.env.NODE_ENV as environment).html,
 
     // copy custom static assets
     new CopyWebpackPlugin([
@@ -68,7 +70,7 @@ export const WebpackBaseConfig: Configuration = {
     tls: "empty"
   }
 };
-export default function assembly(env: env): Configuration {
+export default function assembly(env: environment): Configuration {
   const $config = { production, development };
   return webpackMerge(
     WebpackBaseConfig,

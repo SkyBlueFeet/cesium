@@ -1,7 +1,7 @@
 import * as utils from "../utils";
 import config from "../config";
 
-import { mdLoader, json5Loader } from "./loaders";
+import { json5Loader } from "./loaders";
 import { RuleSetRule } from "webpack";
 import handler, { MixinRuleOptions } from "./happypack";
 
@@ -85,20 +85,6 @@ const loaders: RuleSetRule[] = [
       limit: 10000,
       name: utils.assetsPath("img/[name].[hash:7].[ext]")
     }
-  },
-  {
-    test: /\.md?$/,
-    use: [
-      {
-        loader: "html-loader",
-        options: {
-          attrs: [":data-src", "img:src"]
-        }
-      },
-      {
-        loader: mdLoader
-      }
-    ]
   },
   {
     test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,

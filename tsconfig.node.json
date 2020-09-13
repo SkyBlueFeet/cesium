@@ -19,7 +19,8 @@
     "baseUrl": "./",
     "noEmit": false,
     "lib": ["ES2015", "DOM", "ES2016", "ES2017"],
-    "types": ["node", "webpack"]
+    "types": ["node", "webpack"],
+    "typeRoots": ["node_modules/@types", "declare"]
   },
   "include": ["build", "config"],
   "exclude": ["node_modules", "dist", ".*"]

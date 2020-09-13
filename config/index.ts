@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-03-16 13:39:53
  * @LastEditors: skyblue
- * @LastEditTime: 2020-03-16 23:29:07
+ * @LastEditTime: 2020-09-14 01:01:58
  * @repository: https://github.com/SkyBlueFeet
  */
 
@@ -16,7 +16,7 @@ import portfinder from "portfinder";
 import * as utils from "./utils";
 import config from "./config";
 import Notifier from "node-notifier";
-import assembly, { env } from "./assembly";
+import assembly, { environment } from "./assembly";
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : undefined;
 
@@ -26,7 +26,7 @@ function typeConvert<T, K>(type: T): K {
 
 function index(env: "development"): Promise<Configuration>;
 function index(env: "production"): Configuration;
-function index(env: env): Configuration | Promise<Configuration> {
+function index(env: environment): Configuration | Promise<Configuration> {
   if (env === "development") {
     const devWebpackConfig = assembly("development");
 
