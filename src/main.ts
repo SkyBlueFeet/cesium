@@ -10,9 +10,10 @@ import router from "./router";
 import store from "./store";
 import { CreateElement, VNode } from "vue/types/umd";
 import "normalize.css";
-Vue.config.productionTip = false;
 
-Vue.prototype.$$store = store;
+import "cesium/Build/Cesium/Widgets/widgets.css";
+
+Vue.config.productionTip = false;
 
 const app = new Vue({
   el: "#app",

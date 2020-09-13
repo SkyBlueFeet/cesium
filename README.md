@@ -1,19 +1,19 @@
 <!--
  * @Date: 2020-09-13 11:09:03
  * @LastEditors: skyblue
- * @LastEditTime: 2020-09-13 11:59:44
+ * @LastEditTime: 2020-09-14 00:16:21
  * @repository: https://github.com/SkyBlueFeet
 -->
 
-# webpack4-typescript-template
+# webpack4-cesium-starter
 
 #### Description
 
-基于 Vue-cli@2 脚手架升级改造的全 typescript 实现
+Cesium 的 webpack 配置，支持 Vue、ts、jsx
 
 #### 技术栈
 
-JS、TS、TSX、Vue 全家桶
+JS、TS、TSX、Vue 全家桶、cesium
 
 #### 开发支持
 
@@ -22,9 +22,10 @@ Eslint、Babel、PostCss、Prettier
 #### 关键第三方依赖版本
 
 ```json
+"vue": "^2.6.11",
+"cesium": "^1.73.0",
 "typescript": "^3.8.3",
 "ts-node": "^8.5.4",
-"vue": "^2.6.11",
 "webpack": "^4.41.2",
 "@babel/core": "^7.7.5",
 "eslint": "^6.7.2",
@@ -40,19 +41,18 @@ Eslint、Babel、PostCss、Prettier
 #### 特色
 
 在 vue-cli@2 基础上升级为 webpack4 的基础上，webpack 配置文件全部使用 ts 重构，模块化、参数化配置结构，为构建多页面应用留下配置空间。完全支持 js、jsx、ts、tsx 作为开发语言。
+cesium 与官方文档配置基本相同，可完整运行 cesium 项目
 
 #### 目前的缺陷
 
-Vue 文件中无法同时检查 ts 和 js。
-
-内部配置文件没有 jsdoc。
+内部配置文件没有 jsdoc
+vue 配置未从 webpack 基本配置独立出来。
 
 #### 开发方向
 
 1. 支持 Vue、React、Angular
 2. 支持 ts、tsx、js、jsx
 3. 支持 ejs、vue 多页面
-4. 支持库文档书写和编译
 
 #### 命令
 
@@ -85,6 +85,8 @@ npm run analyzer
 
 2020-01-27 完成 Vue SPA 开发环境
 
+2020-09-14 配置 cesium 开发环境
+
 参考链接
 
 [使用不同语言配置 webpack](https://webpack.docschina.org/configuration/configuration-languages)；
@@ -98,3 +100,5 @@ npm run analyzer
 [【webpack4】用不同语言语法编写 webpack 配置文件](https://segmentfault.com/a/1190000018738802)；
 
 [如果我的项目混用 js 和 ts，如何正确设置配置 Eslint？](https://github.com/AlloyTeam/eslint-config-alloy/issues/67)；
+
+[CesiumJS and Webpack](https://cesium.com/docs/tutorials/cesium-and-webpack/)；

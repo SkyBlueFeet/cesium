@@ -1,7 +1,7 @@
 <!--
  * @Date: 2020-09-13 14:21:41
  * @LastEditors: skyblue
- * @LastEditTime: 2020-09-13 23:31:34
+ * @LastEditTime: 2020-09-14 00:28:55
  * @repository: https://github.com/SkyBlueFeet
 -->
 <template>
@@ -12,19 +12,17 @@
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
 import { VNode } from "vue";
-import * as Cesium from "cesium";
-import "cesium/Build/Cesium/Widgets/widgets.css";
+import { getCesiumViewer } from "@src/utils/cesium";
+import { Viewer } from "cesium";
+
 @Component
 export default class App extends Vue {
   key: string;
-  viewer: Cesium.Viewer;
-  created(): void {
-    this.key =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhOGE3M2Q0YS1iNDNkLTRlNzktYjI2ZC0zNzQxOTA4ZTE0YzkiLCJpZCI6MzM1NzIsImlhdCI6MTU5ODkzMTM0OX0.0smZopUOejbfDQ9zrX87y5aelApZCXwWXLm7_UuJRAA";
-  }
+  viewer: Viewer;
+  created(): void {}
 
   mounted() {
-    this.viewer = new Cesium.Viewer("cesium-container");
+    this.viewer = getCesiumViewer("cesium-container");
   }
 }
 </script>
