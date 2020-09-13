@@ -103,3 +103,6 @@ export function styleLoaders(options: LoaderOption): Rule[] {
 
   return output;
 }
+
+export const cesiumSource = "node_modules/cesium/Source";
+export const cesiumWorkers = "../Build/Cesium/Workers";

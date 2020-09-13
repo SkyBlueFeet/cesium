@@ -1,7 +1,6 @@
 import { Entry } from "webpack";
 import { resolve } from "../utils";
 import { Options as PageOptions } from "html-webpack-plugin";
-import { env } from "../assembly";
 import { MixingPagesOption } from ".";
 
 export default function(env: env): MixingPagesOption {

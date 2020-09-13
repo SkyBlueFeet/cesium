@@ -13,11 +13,13 @@ import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
 const WebpackBuildConfig: webpack.Configuration = {
   mode: "production",
   module: {
-    rules: utils.styleLoaders({
-      sourceMap: config.build.productionSourceMap,
-      extract: true,
-      usePostCSS: true
-    })
+    rules: [
+      ...utils.styleLoaders({
+        sourceMap: config.build.productionSourceMap,
+        extract: true,
+        usePostCSS: true
+      })
+    ]
   },
   devtool: config.build.productionSourceMap as Options.Devtool,
   output: {
@@ -32,9 +34,9 @@ const WebpackBuildConfig: webpack.Configuration = {
       chunkFilename: utils.assetsPath("css/[name].[contenthash].css")
     }),
     // keep module.id stable when vendor modules does not change
-    new webpack.HashedModuleIdsPlugin(),
+    new webpack.HashedModuleIdsPlugin()
     // enable scope hoisting
-    new webpack.optimize.ModuleConcatenationPlugin()
+    // new webpack.optimize.ModuleConcatenationPlugin()
   ],
   optimization: {
     splitChunks: {

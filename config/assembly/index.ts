@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-03-16 12:46:50
  * @LastEditors: skyblue
- * @LastEditTime: 2020-03-16 14:40:48
+ * @LastEditTime: 2020-09-13 23:38:38
  * @repository: https://github.com/SkyBlueFeet
  */
 import webpack, { Configuration } from "webpack";
@@ -16,8 +16,7 @@ import pages from "../pages";
 import development from "./webpack.dev.conf";
 import production from "./webpack.prod.conf";
 import webpackMerge from "webpack-merge";
-
-export type env = "development" | "production" | "testing";
+import cesiumWebpackConfig from "./webpack.cesium.conf";
 
 export const WebpackBaseConfig: Configuration = {
   context: utils.resolve(),
@@ -71,5 +70,9 @@ export const WebpackBaseConfig: Configuration = {
 };
 export default function assembly(env: env): Configuration {
   const $config = { production, development };
-  return webpackMerge(WebpackBaseConfig, $config[env]);
+  return webpackMerge(
+    WebpackBaseConfig,
+    $config[env],
+    cesiumWebpackConfig(env)
+  );
 }

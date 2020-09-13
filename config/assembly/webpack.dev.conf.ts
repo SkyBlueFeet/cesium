@@ -1,3 +1,9 @@
+/*
+ * @Date: 2020-09-13 11:09:03
+ * @LastEditors: skyblue
+ * @LastEditTime: 2020-09-13 14:09:50
+ * @repository: https://github.com/SkyBlueFeet
+ */
 import webpack, { Options } from "webpack";
 
 import WebpackDevServer from "webpack-dev-server";
@@ -48,9 +54,9 @@ const devWebpackConfig: webpack.Configuration = {
   devtool: config.dev.devtool as Options.Devtool,
 
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NamedModulesPlugin(), // HMR shows correct file names in console on update.
-    new webpack.NoEmitOnErrorsPlugin()
+    new webpack.HotModuleReplacementPlugin()
+    // new webpack.NamedModulesPlugin(), // HMR shows correct file names in console on update.
+    // new webpack.NoEmitOnErrorsPlugin()
   ]
 };
 

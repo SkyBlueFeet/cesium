@@ -1,8 +1,13 @@
+/*
+ * @Date: 2020-09-13 11:09:03
+ * @LastEditors: skyblue
+ * @LastEditTime: 2020-09-13 23:49:52
+ * @repository: https://github.com/SkyBlueFeet
+ */
 import { Entry, Configuration, Plugin } from "webpack";
 import HtmlWebpackPlugin, { Options as HtmlOption } from "html-webpack-plugin";
 import vue from "./vue";
 import { resolve } from "../utils";
-import { env } from "../assembly";
 
 export interface PreOption {
   rel: "preload";
