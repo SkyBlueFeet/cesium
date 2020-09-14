@@ -18,7 +18,8 @@ export default {
     alias: {
       "@src": path.resolve(__dirname, "../src"),
       "@declare": path.resolve(__dirname, "../declare"),
-      "@root": path.resolve(__dirname, "..")
+      "@root": path.resolve(__dirname, ".."),
+      "@static": path.resolve(__dirname, "static")
     }
   },
   dev: {

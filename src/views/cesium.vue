@@ -27,13 +27,5 @@ export default class App extends Vue {
 }
 </script>
 <style lang="scss">
-html,
-body,
-#cesium-container {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
+@import url("../style/normal.scss");
 </style>

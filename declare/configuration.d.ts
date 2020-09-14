@@ -7,6 +7,11 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-declare namespace configuartion {
-  export type environment = "development" | "production" | "testing";
+interface Cfg {
+  latitude: number;
+  longitude: number;
+  height: number;
+  pitch: number;
+  heading: number;
+  roll: number;
 }

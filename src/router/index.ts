@@ -7,7 +7,8 @@
 import Vue from "vue";
 import Router from "vue-router";
 import HelloWorld from "@src/components/HelloWorld.tsx";
-import Air from "../views/fly-air.vue";
+import Air from "@src/views/air.vue";
+import Cesium from "@src/views/cesium.vue";
 
 Vue.use(Router);
 
@@ -17,6 +18,11 @@ export default new Router({
       path: "/",
       name: "Hello",
       component: HelloWorld
+    },
+    {
+      path: "/cesium",
+      name: "cesium",
+      component: Cesium
     },
     {
       path: "/air",

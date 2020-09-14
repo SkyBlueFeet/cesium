@@ -54,8 +54,8 @@ const devWebpackConfig: webpack.Configuration = {
   devtool: config.dev.devtool as Options.Devtool,
 
   plugins: [
-    new webpack.HotModuleReplacementPlugin()
-    // new webpack.NamedModulesPlugin(), // HMR shows correct file names in console on update.
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NamedModulesPlugin() // HMR shows correct file names in console on update.
     // new webpack.NoEmitOnErrorsPlugin()
   ]
 };

@@ -7,7 +7,7 @@
 import lodash from "lodash";
 import VueRouter, { Route } from "vue-router";
 import { Store as Vuex } from "vuex";
-
+import * as Cesium from "cesium";
 // 全局变量设置
 declare global {
   const _: typeof lodash;
@@ -19,5 +19,6 @@ declare module "vue/types/vue" {
     $router: VueRouter;
     $route: Route;
     $store: Vuex<any>;
+    $cesium: typeof Cesium;
   }
 }

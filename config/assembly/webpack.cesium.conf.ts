@@ -9,6 +9,7 @@ import * as utils from "../utils";
 import CoptWebpackPlugin from "copy-webpack-plugin";
 import path from "path";
 import { environment } from "./.";
+import { cfgLoader } from "../rules/loaders";
 
 const cesiumWebpackConfig = (env: environment): webpack.Configuration => {
   const result: webpack.Configuration = {
@@ -55,6 +56,11 @@ const cesiumWebpackConfig = (env: environment): webpack.Configuration => {
       ]
     });
   }
+  result.module.rules.push({
+    test: /\.(cfg)$/,
+    loader: [cfgLoader],
+    include: [utils.resolve("src")]
+  });
   return result;
 };
 

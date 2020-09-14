@@ -17,12 +17,9 @@ import * as utils from "./utils";
 import config from "./config";
 import Notifier from "node-notifier";
 import assembly, { environment } from "./assembly";
+import { typeConvert } from "../utils/typings";
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : undefined;
-
-function typeConvert<T, K>(type: T): K {
-  return type as any;
-}
 
 function index(env: "development"): Promise<Configuration>;
 function index(env: "production"): Configuration;
