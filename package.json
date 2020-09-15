@@ -10,8 +10,7 @@
     "lint": "eslint --ext .js,.vue,.ts,.tsx src",
     "build": "ts-node --project tsconfig.node.json script/build.ts",
     "analyzer": "npm run build --report",
-    "format": "prettier --write \"*/**/*.ts\" \"*/**/*.vue\" \"*/**/*.tsx\" \"*/**/*.js\" \"*/**/*.jsx\"",
-    "restore-dependencies": "rimraf node_modules & yarn install"
+    "format": "prettier --write \"*/**/*.ts\" \"*/**/*.vue\" \"*/**/*.tsx\" \"*/**/*.js\" \"*/**/*.jsx\""
   },
   "dependencies": {
     "cesium": "^1.73.0",
