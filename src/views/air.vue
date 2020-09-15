@@ -94,19 +94,6 @@ export default class VueCesium extends Vue {
       )
     );
 
-    const hole: any = {
-      positions: Cartesian3.fromDegreesArray([
-        -93.0,
-        34.0,
-        -91.0,
-        34.0,
-        -91.0,
-        36.0,
-        -93.0,
-        36.0
-      ])
-    };
-
     const airEntity = this.instance.entities.add({
       id: "air",
       name: "目标方位",
@@ -198,6 +185,6 @@ export default class VueCesium extends Vue {
   };
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 @import url("../style/normal.scss");
 </style>

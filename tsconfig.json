@@ -20,9 +20,10 @@
         "outDir": "./dist",
         "baseUrl": "./",
         "paths": {
-            "@src/*": ["src/*"],
             "@root/*": ["./*"],
+            "@src/*": ["src/*"],
             "@static/*": ["static/*"],
+            "@utils/*": ["utils/*"],
             "@declare/*": ["declare/*"]
         },
         "noEmit": false,

@@ -28,6 +28,11 @@ declare module "*.png" {
   export default content;
 }
 
+declare module "*.ico" {
+  const content: string;
+  export default content;
+}
+
 declare module "*.ejs" {
   type ejs = (
     data?: Record<string, unknown> | Array<unknown> | unknown

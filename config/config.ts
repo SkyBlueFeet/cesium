@@ -19,7 +19,8 @@ export default {
       "@src": path.resolve(__dirname, "../src"),
       "@declare": path.resolve(__dirname, "../declare"),
       "@root": path.resolve(__dirname, ".."),
-      "@static": path.resolve(__dirname, "static")
+      "@static": path.resolve(__dirname, "../static"),
+      "@utils": path.resolve(__dirname, "../utils")
     }
   },
   dev: {

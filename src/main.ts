@@ -9,11 +9,14 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import { CreateElement, VNode } from "vue/types/umd";
-import "normalize.css";
+import ElementUI from "element-ui";
+import "element-ui/lib/theme-chalk/index.css";
+// import "normalize.css";
 
 import "cesium/Build/Cesium/Widgets/widgets.css";
 
 Vue.config.productionTip = false;
+Vue.use(ElementUI);
 
 const app = new Vue({
   el: "#app",

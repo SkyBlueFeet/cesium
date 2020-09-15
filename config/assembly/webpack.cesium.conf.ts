@@ -21,10 +21,26 @@ const cesiumWebpackConfig = (env: environment): webpack.Configuration => {
       toUrlUndefined: true
     },
     module: {
-      rules: [],
+      rules: [
+        {
+          test: /\.(cfg)$/,
+          loader: [cfgLoader],
+          include: [utils.resolve("src")]
+        }
+        // {
+        //   test: /\.(glb|gltf)$/,
+        //   loader: "url-loader",
+        //   options: {
+        //     limit: 10000,
+        //     name: utils.assetsPath("fonts/[name].[hash:7].[ext]")
+        //   }
+        // }
+      ],
       unknownContextCritical: false
     },
-    resolve: {},
+    resolve: {
+      alias: {}
+    },
     plugins: [
       new webpack.DefinePlugin({
         CESIUM_BASE_URL: JSON.stringify("")
@@ -56,11 +72,6 @@ const cesiumWebpackConfig = (env: environment): webpack.Configuration => {
       ]
     });
   }
-  result.module.rules.push({
-    test: /\.(cfg)$/,
-    loader: [cfgLoader],
-    include: [utils.resolve("src")]
-  });
   return result;
 };
 

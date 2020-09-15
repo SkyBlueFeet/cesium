@@ -22,3 +22,8 @@ p {
   color: #42b983;
   font-size: 15px;
 }
+
+.hello{
+  padding-top: 60px;
+  text-align: center;
+}

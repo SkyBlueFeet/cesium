@@ -9,6 +9,9 @@ import Router from "vue-router";
 import HelloWorld from "@src/components/HelloWorld.tsx";
 import Air from "@src/views/air.vue";
 import Cesium from "@src/views/cesium.vue";
+import Entity from "@src/views/entity.vue";
+import AutoFly from "@src/views/autoFly.vue";
+import Clamp from "@src/views/clamp.vue";
 
 Vue.use(Router);
 
@@ -28,6 +31,21 @@ export default new Router({
       path: "/air",
       name: "air",
       component: Air
+    },
+    {
+      path: "/entity",
+      name: "entity",
+      component: Entity
+    },
+    {
+      path: "/autofly",
+      name: "autofly",
+      component: AutoFly
+    },
+    {
+      path: "/clamp",
+      name: "Clamp",
+      component: Clamp
     }
   ]
 });

@@ -4,6 +4,7 @@ import RC from "@src/components/renderComponent.vue";
 import TestMixin from "../mixins/test-mixin";
 import { Getter } from "vuex-class";
 import "./test.css";
+import Image from "@root/logo.png";
 
 @Component({
   components: {
@@ -25,6 +26,7 @@ export default class HelloWorld extends Vue<TestMixin> {
   render(h: CreateElement): VNode {
     return (
       <div class="hello">
+        <img src={Image} />
         <h1>{this.msg}</h1>
         <h2>vue-typescrip-starter</h2>
         <p>mixin 数据 ：{this.testMixinArg}</p>
