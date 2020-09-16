@@ -12,6 +12,7 @@ import Cesium from "@src/views/cesium.vue";
 import Entity from "@src/views/entity.vue";
 import AutoFly from "@src/views/autoFly.vue";
 import Clamp from "@src/views/clamp.vue";
+import Point from "@src/views/point.vue";
 
 Vue.use(Router);
 
@@ -46,6 +47,11 @@ export default new Router({
       path: "/clamp",
       name: "Clamp",
       component: Clamp
+    },
+    {
+      path: "/point",
+      name: "Point",
+      component: Point
     }
   ]
 });

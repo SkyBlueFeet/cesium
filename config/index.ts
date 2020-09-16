@@ -40,9 +40,7 @@ function index(env: environment): Configuration | Promise<Configuration> {
           errors: string
         ): void {
           if (severity !== "error" || !config.dev.notifyOnErrors) return;
-          typeConvert<string, any[]>(errors).forEach(k =>
-            console.log(k.webpackError)
-          );
+          typeConvert(errors).forEach(k => console.log(k.webpackError));
 
           Notifier.notify({
             title: "Webpack",
