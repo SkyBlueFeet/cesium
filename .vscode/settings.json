@@ -12,5 +12,6 @@
         "html": "\"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe\"",
         "java": "cd $dir && javac $fileName && java $fileNameWithoutExt",
         "c": "cd $dir && gcc $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt"
-    }
+    },
+    "git.ignoreLimitWarning": true
 }

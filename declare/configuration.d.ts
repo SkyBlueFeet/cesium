@@ -44,3 +44,23 @@ interface Cfg {
    */
   roll: number;
 }
+
+interface LngLatHgt {
+  /**
+   * @description 经度
+   * @type number
+   */
+  latitude: number;
+
+  /**
+   * @description 纬度
+   * @type number
+   */
+  longitude: number;
+
+  /**
+   * @description 高度
+   * @type number
+   */
+  height: number;
+}

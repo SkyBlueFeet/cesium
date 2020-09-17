@@ -1,7 +1,7 @@
 <template>
   <div id="container">
     <div :id="cId"></div>
-    <el-button @click="addBillboard">添加点</el-button>
+    <el-button @click="addBillboard">添加据点</el-button>
     <el-dropdown placement="bottom" @command="addEventListener">
       <el-button type="primary">
         添加事件
@@ -46,10 +46,15 @@
 import { Vue, Component } from "vue-property-decorator";
 import * as Cesium from "cesium";
 
-import { addEntityToViewer } from "@src/lib/viewer";
 import { getRandomCartesian3 } from "@src/lib/utils";
 import { getCesiumViewer } from "@src/utils/cesium";
-import { createBillboard } from "@src/lib/point";
+import {
+  createBillboardToViewer,
+  addEventListenerToViewer
+} from "@src/lib/entity";
+
+import Unit from "@src/lib/MilitaryUnit/addunit";
+import { iconPath, MilitaryUnitType } from "@src/lib/MilitaryUnit/type";
 
 import Airport from "@static/icon/飞机场.png";
 
@@ -63,61 +68,42 @@ export default class PointVue extends Vue {
   pViewer: Cesium.Viewer;
   eventCollector: string[] = [];
   entityCollector: string[] = [];
+  uInstance: Unit;
   mounted() {
     this.pViewer = getCesiumViewer(this.cId);
-    this.eventListener();
+
+    this.uInstance = new Unit({
+      viewer: this.pViewer
+    });
   }
 
   addBillboard(): Cesium.Viewer {
-    const eEntity = new Cesium.Entity({
-      position: getRandomCartesian3(),
-      billboard: createBillboard({
-        image: Airport,
+    this.uInstance.createUnit(
+      {
+        entityOption: {
+          name: "安达尔港",
+          position: getRandomCartesian3()
+        },
+        icon: MilitaryUnitType.Airport,
         sizeInMeters: true,
         width: 48,
         height: 48
-      })
-    });
+      },
+      entity => {
+        this.pViewer.flyTo(entity);
+        return entity;
+      }
+    );
 
-    addEntityToViewer(this.pViewer, eEntity, { focus: true });
+    this.entityCollector.push(this.uInstance.id);
 
-    this.entityCollector.push(eEntity.id);
     return this.pViewer;
   }
 
   addEventListener(command: string): void {
-    // this.eventCollector.push(command);
-    console.log(command);
-    const _viewer = this.pViewer;
-    const _this = this;
-    _this.eventCollector.push(command);
-    // const handler = new Cesium.ScreenSpaceEventHandler(_viewer.scene.canvas);
-    // handler.setInputAction(function(movement) {
-    //   const pick = _viewer.scene.pick(movement.position);
-
-    //   if (Cesium.defined(pick) && _this.eventCollector.includes(pick))
-    //     console.log(`抓到${command}`);
-    // }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-  }
-
-  eventListener() {
-    const _viewer = this.pViewer;
-    const handler = new Cesium.ScreenSpaceEventHandler(_viewer.scene.canvas);
-    const _this = this;
-
-    const _event = function(movement: any) {
-      const pick = _viewer.scene.pick(movement.position);
-      console.log(`id:${pick.id.id}`);
-      console.log("init");
-
-      if (!!pick && this.eventCollector.include(pick.id.id)) {
-        console.log(`id:${pick.id.id}`);
-      }
-    };
-
-    handler.setInputAction(function(movement) {
-      _event.bind(this);
-    }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+    this.uInstance.addEventListener((movement, entity) => {
+      console.log(entity.id, entity);
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
 
   selectPoint(command: string) {

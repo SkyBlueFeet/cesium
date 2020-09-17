@@ -11,17 +11,3 @@ export const getCesiumViewer = (
 
   return new Cesium.Viewer(id, option);
 };
-
-export type addEntityOption = {
-  focus?: boolean;
-};
-
-export function addEntityToViewer(
-  eViewer: Cesium.Viewer,
-  entity: Cesium.Entity,
-  options: addEntityOption = {}
-): void {
-  eViewer.entities.add(entity);
-
-  if (options.focus) eViewer.flyTo(entity);
-}
