@@ -40,6 +40,7 @@
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
+    <div id="point"></div>
   </div>
 </template>
 <script lang="ts">
@@ -53,10 +54,11 @@ import {
   addEventListenerToViewer
 } from "@src/lib/entity";
 
-import Unit from "@src/lib/MilitaryUnit/addunit";
+import Unit from "@src/lib/MilitaryUnit";
 import { iconPath, MilitaryUnitType } from "@src/lib/MilitaryUnit/type";
 
 import Airport from "@static/icon/飞机场.png";
+import { Test } from "@src/lib/init";
 
 type Listener = () => void;
 

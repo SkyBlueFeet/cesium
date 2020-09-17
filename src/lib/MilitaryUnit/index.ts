@@ -3,7 +3,7 @@ import { MilitaryUnitType, iconPath } from "@src/lib/MilitaryUnit/type";
 import * as Cesium from "cesium";
 import { cartesian3ToLngLat, locationType } from "../utils";
 
-export type Callback = (entity: Cesium.Entity | Cesium.Entity) => Cesium.Entity;
+export type Callback = (entity: Cesium.Entity) => Cesium.Entity;
 
 export interface BillboardEntity
   extends Cesium.BillboardGraphics.ConstructorOptions {
@@ -59,7 +59,7 @@ export default class Unitaire {
    *
    * @description 根据属性创建相应单位并添加到视图中
    * 
-   * @param unitOptions 单位属性
+   * @param unitOptions 单元属性
 
    * @param callback 创建完成后的回调
    *
@@ -90,13 +90,18 @@ export default class Unitaire {
       billboard: _billboard
     });
 
-    this._entity.description = `<h1>编号：</h1><small>${
+    /**
+     * 点击后的信息框内容
+     */
+    const content = `<h1>编号：</h1><small>${
       this._entity.id
     }</small><h1>名称：${this._entityOption.name}</h1><h1>类型：${locationType(
       this.type
     )}</h1><h2>经度: ${this.position.latitude}</h2><h2>纬度：${
       this.position.longitude
     }</h2><h2>高度：${this.position.height}</h2>`;
+
+    this._entity.description = typeConvert(content);
 
     this.id = this._entity.id;
 

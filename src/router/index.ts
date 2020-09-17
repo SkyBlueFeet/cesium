@@ -13,6 +13,7 @@ import Entity from "@src/views/entity.vue";
 import AutoFly from "@src/views/autoFly.vue";
 import Clamp from "@src/views/clamp.vue";
 import Point from "@src/views/point.vue";
+import Interface from "@src/views/interface.vue";
 
 Vue.use(Router);
 
@@ -52,6 +53,11 @@ export default new Router({
       path: "/point",
       name: "Point",
       component: Point
+    },
+    {
+      path: "/interface",
+      name: "Interface",
+      component: Interface
     }
   ]
 });
