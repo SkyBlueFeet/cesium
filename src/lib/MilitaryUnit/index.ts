@@ -3,11 +3,14 @@ import { MilitaryUnitType, iconPath } from "@src/lib/MilitaryUnit/type";
 import * as Cesium from "cesium";
 import { cartesian3ToLngLat, locationType } from "../utils";
 
-export type Callback = (entity: Cesium.Entity) => Cesium.Entity;
+export type Callback = (
+  this: Cesium.Viewer,
+  entity: Cesium.Entity
+) => Cesium.Entity;
 
 export interface BillboardEntity
   extends Cesium.BillboardGraphics.ConstructorOptions {
-  icon: MilitaryUnitType;
+  type: MilitaryUnitType;
   entityOption: Cesium.Entity.ConstructorOptions;
 }
 
@@ -16,7 +19,7 @@ export interface UnitaireConstructorOption {
 }
 
 const defaultOptions: BillboardEntity = {
-  icon: MilitaryUnitType.Suspicious,
+  type: MilitaryUnitType.Suspicious,
   sizeInMeters: true,
   disableDepthTestDistance: Number.POSITIVE_INFINITY, // 去掉地形遮挡
   entityOption: {}
@@ -42,7 +45,7 @@ export default class Unitaire {
   name: string;
 
   /**
-   * 单元类型
+   * 创建的单元类型
    */
   type: MilitaryUnitType;
 
@@ -65,21 +68,21 @@ export default class Unitaire {
    *
    * @returns `回调函数返回值`即为方法返回值 @link callback
    */
-  createUnit(unitOptions: BillboardEntity, callback?: Callback): Cesium.Entity {
+  createUnit(unitOptions: BillboardEntity, callback?: Callback): this {
     this.position = cartesian3ToLngLat(
       typeConvert(unitOptions.entityOption.position)
     );
-    this.type = unitOptions.icon;
+    this.type = unitOptions.type;
     this.name = unitOptions.entityOption.name;
 
     this._entityOption = unitOptions.entityOption;
 
     this._unitOption = {
       ...this._option,
-      image: iconPath[this._option.icon]
+      image: iconPath[this._option.type]
     };
 
-    this._unitOption.image = iconPath[unitOptions.icon];
+    this._unitOption.image = iconPath[unitOptions.type];
     this._unitOption.disableDepthTestDistance = Number.POSITIVE_INFINITY; // 去掉地形遮挡
 
     const _billboard = new Cesium.BillboardGraphics(this._unitOption);
@@ -105,11 +108,10 @@ export default class Unitaire {
 
     this.id = this._entity.id;
 
-    if (typeof callback === "function") this._entity = callback(this._entity);
+    if (typeof callback === "function")
+      this._entity = callback.call(this._viewer, this._entity);
 
-    console.log(_billboard.sizeInMeters);
-
-    return this._entity;
+    return this;
   }
 
   addEventListener(

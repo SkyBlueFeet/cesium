@@ -1,5 +1,5 @@
 {
-    "typescript.tsdk": "/home/skyblue/Desktop/git/cesium/node_modules/typescript/lib",
+    "typescript.tsdk": "c:\\Users\\yakun\\Desktop\\git\\cesium-models\\node_modules\\typescript\\lib",
     "code-runner.runInTerminal": true,
     "code-runner.executorMap": {
         "javascript": "node",

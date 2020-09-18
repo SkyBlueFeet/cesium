@@ -58,7 +58,6 @@ import Unit from "@src/lib/MilitaryUnit";
 import { iconPath, MilitaryUnitType } from "@src/lib/MilitaryUnit/type";
 
 import Airport from "@static/icon/飞机场.png";
-import { Test } from "@src/lib/init";
 
 type Listener = () => void;
 
@@ -86,7 +85,7 @@ export default class PointVue extends Vue {
           name: "安达尔港",
           position: getRandomCartesian3()
         },
-        icon: MilitaryUnitType.Airport,
+        type: MilitaryUnitType.Airport,
         sizeInMeters: true,
         width: 48,
         height: 48
