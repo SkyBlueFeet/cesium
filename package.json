@@ -113,7 +113,7 @@
     "strip-pragma-loader": "^1.0.0",
     "ts-loader": "^6.2.1",
     "ts-node": "^8.5.4",
-    "typescript": "^3.8.3",
+    "typescript": "3.8.3",
     "uglifyjs-webpack-plugin": "^2.2.0",
     "url-loader": "^0.5.8",
     "vue-loader": "^15.7.2",

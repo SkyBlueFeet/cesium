@@ -8,6 +8,7 @@ import Vue from "vue";
 import Router from "vue-router";
 import HelloWorld from "@src/components/HelloWorld.tsx";
 import Air from "../views/fly-air.vue";
+import Draw from "../views/draw.vue";
 
 Vue.use(Router);
 
@@ -22,6 +23,11 @@ export default new Router({
       path: "/air",
       name: "air",
       component: Air
+    },
+    {
+      path: "/draw",
+      name: "Draw",
+      component: Draw
     }
   ]
 });

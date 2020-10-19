@@ -18,6 +18,7 @@ export default {
     alias: {
       "@src": path.resolve(__dirname, "../src"),
       "@declare": path.resolve(__dirname, "../declare"),
+      "@lib": path.resolve(__dirname, "../lib"),
       "@root": path.resolve(__dirname, "..")
     }
   },
