@@ -2,6 +2,9 @@ import * as Cesium from "cesium";
 import { Entity } from "cesium";
 import Subscriber from "@lib/subscriber";
 import { Movement } from "@lib/typings/Event";
+import Painter from "./painter";
+import Polygon from "./polygon";
+import Line from "./line";
 
 export interface DrawOption {
   viewer: Cesium.Viewer;
@@ -24,7 +27,15 @@ export default class Draw {
   private _floatingPoint: Entity;
   private _status: Status;
 
+  private _painter: Painter;
+
   private _events: string[] = [];
+
+  private _typeClass;
+
+  private readonly _startDraw: (Movement) => void;
+  private readonly _drawing: (Movement) => void;
+  private readonly _endDraw: (Movement) => void;
 
   get status(): Status {
     return this._status;
@@ -32,8 +43,28 @@ export default class Draw {
 
   constructor(options: DrawOption) {
     this._viewer = options.viewer;
+    this._terrain = options.terrain || false;
+
+    const painterOptions = {
+      viewer: this._viewer,
+      handler: undefined
+    };
 
     this._type = options.type || "POLYGON";
+
+    if (this._type === "POLYGON") {
+      painterOptions.handler = Polygon.handler;
+      this._painter = new Painter(painterOptions);
+      this._typeClass = new Polygon(this._painter, this._terrain);
+    } else if (this._type === "LINE") {
+      painterOptions.handler = Line.handler;
+      this._painter = new Painter(painterOptions);
+      this._typeClass = new Line(this._painter, this._terrain);
+    }
+
+    this._startDraw = this._typeClass.startDraw;
+    this._drawing = this._typeClass.drawing;
+    this._endDraw = this._typeClass.endDraw;
 
     this._terrain = options.terrain || false;
 
@@ -57,18 +88,18 @@ export default class Draw {
     if (this._status === "START") return;
 
     const startId = this._subscriber.addExternal(
-      this.startDraw.bind(this),
+      this._startDraw.bind(this._typeClass),
       "LEFT_CLICK"
     );
 
     const moveId = this._subscriber.addExternal(
-      this.drawing.bind(this),
+      this._drawing.bind(this._typeClass),
       "MOUSE_MOVE"
     );
     // Redraw the shape so it's not dynamic and remove the dynamic shape.
 
     const endId = this._subscriber.addExternal(
-      this.finalized.bind(this),
+      this._endDraw.bind(this._typeClass),
       "RIGHT_CLICK"
     );
 
@@ -81,95 +112,6 @@ export default class Draw {
       new Cesium.Cartesian3(5000.0, 5000.0, 5000.0)
     );
     this._viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-  }
-
-  private startDraw(event: Movement): void {
-    // We use `viewer.scene.pickPosition` here instead of `viewer.camera.pickEllipsoid` so that
-    // we get the correct point when mousing over terrain.
-    const earthPosition = this._terrain
-      ? this._viewer.scene.pickPosition(event.position)
-      : this._viewer.camera.pickEllipsoid(event.position);
-
-    // `earthPosition` will be undefined if our mouse is not over the globe.
-    if (Cesium.defined(earthPosition)) {
-      if (this._activeShapePoints.length === 0) {
-        this._floatingPoint = this.createPoint(earthPosition);
-        this._activeShapePoints.push(earthPosition);
-        const dynamicPositions = new Cesium.CallbackProperty(() => {
-          return this._type === "POLYGON"
-            ? new Cesium.PolygonHierarchy(this._activeShapePoints)
-            : this._activeShapePoints;
-        }, false);
-        this._activeShape = this.draw(dynamicPositions);
-      }
-      this._activeShapePoints.push(earthPosition);
-      this.createPoint(earthPosition);
-    }
-  }
-
-  private drawing(event: Movement): void {
-    if (Cesium.defined(this._floatingPoint)) {
-      const newPosition = this._terrain
-        ? this._viewer.scene.pickPosition(event.endPosition)
-        : this._viewer.camera.pickEllipsoid(event.endPosition);
-
-      // const newPosition = picker(event.endPosition);
-      if (Cesium.defined(newPosition)) {
-        this._floatingPoint.position = new Cesium.ConstantPositionProperty(
-          newPosition
-        );
-        this._activeShapePoints.pop();
-        this._activeShapePoints.push(newPosition);
-      }
-    }
-  }
-
-  private createPoint(worldPosition: Cesium.Cartesian3): Cesium.Entity {
-    return this._viewer.entities.add({
-      position: worldPosition,
-      point: {
-        color: Cesium.Color.WHITE,
-        pixelSize: 5,
-        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
-      }
-    });
-  }
-
-  private draw(
-    hierarchy: Cesium.Cartesian3[] | Cesium.CallbackProperty
-  ): Cesium.Entity {
-    let shape: Cesium.Entity;
-    if (this._type === "LINE") {
-      shape = this._viewer.entities.add({
-        polyline: {
-          positions: hierarchy,
-          clampToGround: true,
-          width: 3
-        }
-      });
-    } else if (this._type === "POLYGON") {
-      shape = this._viewer.entities.add({
-        polygon: {
-          hierarchy: Array.isArray(hierarchy)
-            ? new Cesium.PolygonHierarchy(hierarchy)
-            : hierarchy,
-          material: new Cesium.ColorMaterialProperty(
-            Cesium.Color.WHITE.withAlpha(0.7)
-          )
-        }
-      });
-    }
-    return shape;
-  }
-
-  private finalized(): void {
-    this._activeShapePoints.pop();
-    this.draw(this._activeShapePoints);
-    this._viewer.entities.remove(this._floatingPoint);
-    this._viewer.entities.remove(this._activeShape);
-    this._floatingPoint = undefined;
-    this._activeShape = undefined;
-    this._activeShapePoints = [];
   }
 
   pause(): void {

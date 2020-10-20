@@ -11,16 +11,19 @@ export default class CeaiumDraw extends Vue {
   mounted() {
     const viewer = new Cesium.Viewer("cesium-container", {
       selectionIndicator: false,
-      infoBox: false
-      // terrainProvider: Cesium.createWorldTerrain()
+      infoBox: false,
+      terrainProvider: Cesium.createWorldTerrain()
     });
 
     const t = new Draw({
       viewer,
-      type: "POLYGON"
-      // terrain: true
+      type: "LINE",
+      terrain: true
     });
     t.start();
+    t.pause();
+    t.start();
+    t.destroy();
   }
 }
 </script>

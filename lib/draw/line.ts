@@ -3,7 +3,7 @@ import * as Cesium from "cesium";
 import Painter from "./painter";
 import { Movement } from "@lib/typings/Event";
 
-export default class Polygon {
+export default class Line {
   pointer: Painter;
   _terrain: boolean;
   constructor(pointer: Painter, terrain: boolean) {
@@ -24,7 +24,7 @@ export default class Polygon {
         this.pointer._floatingPoint = this.pointer.createPoint(earthPosition);
         this.pointer._activeShapePoints.push(earthPosition);
         const dynamicPositions = new Cesium.CallbackProperty(
-          () => new Cesium.PolygonHierarchy(this.pointer._activeShapePoints),
+          () => this.pointer._activeShapePoints,
           false
         );
         this.pointer._activeShape = this.pointer.finalized(dynamicPositions);
@@ -64,13 +64,10 @@ export default class Polygon {
     hierarchy: Cesium.Cartesian3[] | Cesium.CallbackProperty
   ): Cesium.Entity.ConstructorOptions {
     return {
-      polygon: {
-        hierarchy: Array.isArray(hierarchy)
-          ? new Cesium.PolygonHierarchy(hierarchy)
-          : hierarchy,
-        material: new Cesium.ColorMaterialProperty(
-          Cesium.Color.WHITE.withAlpha(0.7)
-        )
+      polyline: {
+        positions: hierarchy,
+        clampToGround: true,
+        width: 3
       }
     };
   }

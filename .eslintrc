@@ -34,8 +34,8 @@
         ],
         "extends": [
             "eslint:recommended",
-            "google",
-            "plugin:prettier/recommended"
+            "google"
+            // "plugin:prettier/recommended"
         ]
     },
     {
@@ -48,8 +48,8 @@
             "eslint:recommended",
             "plugin:@typescript-eslint/eslint-recommended",
             "plugin:@typescript-eslint/recommended",
-            "plugin:vue/essential",
-            "plugin:prettier/recommended"
+            "plugin:vue/essential"
+            // "plugin:prettier/recommended"
         ]
     },
     {
