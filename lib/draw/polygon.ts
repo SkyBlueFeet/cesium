@@ -27,7 +27,9 @@ export default class Polygon {
           () => new Cesium.PolygonHierarchy(this.pointer._activeShapePoints),
           false
         );
-        this.pointer._activeShape = this.pointer.finalized(dynamicPositions);
+        this.pointer._activeShape = this.pointer.finalized(
+          this.handler(dynamicPositions)
+        );
       }
       this.pointer._activeShapePoints.push(earthPosition);
       this.pointer.createPoint(earthPosition);
@@ -52,7 +54,7 @@ export default class Polygon {
 
   endDraw(): void {
     this.pointer._activeShapePoints.pop();
-    this.pointer.finalized(this.pointer._activeShapePoints);
+    this.pointer.finalized(this.handler(this.pointer._activeShapePoints));
     this.pointer._viewer.entities.remove(this.pointer._floatingPoint);
     this.pointer._viewer.entities.remove(this.pointer._activeShape);
     this.pointer._floatingPoint = undefined;
@@ -60,7 +62,7 @@ export default class Polygon {
     this.pointer._activeShapePoints = [];
   }
 
-  static handler(
+  handler(
     hierarchy: Cesium.Cartesian3[] | Cesium.CallbackProperty
   ): Cesium.Entity.ConstructorOptions {
     return {

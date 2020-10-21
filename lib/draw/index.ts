@@ -5,6 +5,7 @@ import { Movement } from "@lib/typings/Event";
 import Painter from "./painter";
 import Polygon from "./polygon";
 import Line from "./line";
+import Point from "./point";
 
 export interface DrawOption {
   viewer: Cesium.Viewer;
@@ -21,10 +22,6 @@ export default class Draw {
   private _terrain: boolean;
   private _subscriber: Subscriber;
 
-  private _activeShapePoints: Cesium.Cartesian3[] = [];
-
-  private _activeShape: Entity;
-  private _floatingPoint: Entity;
   private _status: Status;
 
   private _painter: Painter;
@@ -33,9 +30,9 @@ export default class Draw {
 
   private _typeClass;
 
-  private readonly _startDraw: (Movement) => void;
-  private readonly _drawing: (Movement) => void;
-  private readonly _endDraw: (Movement) => void;
+  private readonly _startDraw: (move: Movement) => void;
+  private readonly _drawing: (move: Movement) => void;
+  private readonly _endDraw: (move: Movement) => void;
 
   get status(): Status {
     return this._status;
@@ -46,20 +43,20 @@ export default class Draw {
     this._terrain = options.terrain || false;
 
     const painterOptions = {
-      viewer: this._viewer,
-      handler: undefined
+      viewer: this._viewer
     };
 
     this._type = options.type || "POLYGON";
+    this._painter = new Painter(painterOptions);
 
     if (this._type === "POLYGON") {
-      painterOptions.handler = Polygon.handler;
-      this._painter = new Painter(painterOptions);
       this._typeClass = new Polygon(this._painter, this._terrain);
     } else if (this._type === "LINE") {
-      painterOptions.handler = Line.handler;
-      this._painter = new Painter(painterOptions);
       this._typeClass = new Line(this._painter, this._terrain);
+    } else if (this._type === "POINT") {
+      this._typeClass = new Point(this._painter, this._terrain);
+    } else {
+      throw new Error(`the type '${this._type}' is not support`);
     }
 
     this._startDraw = this._typeClass.startDraw;
@@ -127,9 +124,6 @@ export default class Draw {
     this._viewer = undefined;
     this._type = undefined;
     this._terrain = undefined;
-    this._activeShapePoints = undefined;
-    this._activeShape = undefined;
-    this._floatingPoint = undefined;
     this.pause = undefined;
     this.start = undefined;
     this.destroy = undefined;

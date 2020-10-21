@@ -1,7 +1,5 @@
 import * as Cesium from "cesium";
 import { Entity } from "cesium";
-import Subscriber from "@lib/subscriber";
-import { Movement } from "@lib/typings/Event";
 import { hierarchyHandler } from "@lib/typings/draw";
 
 export interface DrawOption {
@@ -9,16 +7,14 @@ export interface DrawOption {
   type?: "POLYGON" | "LINE" | "POINT";
   terrain?: boolean;
   once?: boolean;
-  handler: hierarchyHandler;
 }
 
 export default class Painter {
   _viewer: Cesium.Viewer;
   _type: DrawOption["type"];
 
-  _handler: hierarchyHandler;
-
   _activeShapePoints: Cesium.Cartesian3[] = [];
+  _activePoint: Cesium.Cartesian3 = new Cesium.Cartesian3();
 
   _activeShape: Entity;
   _floatingPoint: Entity;
@@ -27,7 +23,6 @@ export default class Painter {
     this._viewer = options.viewer;
 
     this._type = options.type || "POLYGON";
-    this._handler = options.handler;
 
     // Zoom in to an area with mountains
     this.setCamera();
@@ -41,10 +36,8 @@ export default class Painter {
     this._viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
   }
 
-  finalized(
-    hierarchy: Cesium.Cartesian3[] | Cesium.CallbackProperty
-  ): Cesium.Entity {
-    return this._viewer.entities.add(this._handler(hierarchy));
+  finalized(entity: Entity | Entity.ConstructorOptions): Cesium.Entity {
+    return this._viewer.entities.add(entity);
   }
 
   createPoint(worldPosition: Cesium.Cartesian3): Cesium.Entity {
