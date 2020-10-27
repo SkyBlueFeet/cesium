@@ -9,5 +9,4 @@ export interface LifeCycle {
   startDraw: (move: Movement) => void;
   drawing: (move: Movement) => void;
   endDraw: (move: Movement) => void;
-  handler: hierarchyHandler;
 }

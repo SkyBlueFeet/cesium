@@ -17,13 +17,13 @@ export default class CeaiumDraw extends Vue {
 
     const t = new Draw({
       viewer,
-      type: "POINT",
+      type: "POLYGON",
       terrain: true
     });
-    t.start();
-    // t.pause();
-    // t.start();
-    // t.destroy();
+    t.start(entity => {
+      console.log(entity);
+      return entity;
+    }, true);
   }
 }
 </script>

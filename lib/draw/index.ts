@@ -1,5 +1,5 @@
 import * as Cesium from "cesium";
-import { Entity } from "cesium";
+
 import Subscriber from "@lib/subscriber";
 import { Movement } from "@lib/typings/Event";
 import Painter from "./painter";
@@ -11,8 +11,13 @@ export interface DrawOption {
   viewer: Cesium.Viewer;
   type?: "POLYGON" | "LINE" | "POINT";
   terrain?: boolean;
-  once?: boolean;
+  keyboard?: {
+    START?: Cesium.ScreenSpaceEventType;
+    END?: Cesium.ScreenSpaceEventType;
+  };
 }
+
+export type DrawCallback = (entity: Cesium.Entity) => Cesium.Entity;
 
 type Status = "INIT" | "START" | "PAUSE" | "DESTROY";
 
@@ -28,7 +33,7 @@ export default class Draw {
 
   private _events: string[] = [];
 
-  private _typeClass;
+  private _typeClass: Line | Polygon | Point;
 
   private readonly _startDraw: (move: Movement) => void;
   private readonly _drawing: (move: Movement) => void;
@@ -81,24 +86,37 @@ export default class Draw {
     this.setCamera();
   }
 
-  start(): void {
+  start(callback?: DrawCallback, once = false): void {
     if (this._status === "START") return;
 
-    const startId = this._subscriber.addExternal(
-      this._startDraw.bind(this._typeClass),
-      "LEFT_CLICK"
-    );
+    const startId = this._subscriber.addExternal(move => {
+      this._startDraw.call(this._typeClass, move);
 
-    const moveId = this._subscriber.addExternal(
-      this._drawing.bind(this._typeClass),
-      "MOUSE_MOVE"
-    );
+      if (this._type !== "POINT") return;
+
+      once && this.pause();
+
+      callback =
+        typeof callback === "function"
+          ? callback
+          : (val: Cesium.Entity): Cesium.Entity => val;
+      this._viewer.entities.add(callback(this._typeClass.result));
+    }, "LEFT_CLICK");
+
+    const moveId = this._subscriber.addExternal(move => {
+      this._drawing.call(this._typeClass, move);
+    }, "MOUSE_MOVE");
     // Redraw the shape so it's not dynamic and remove the dynamic shape.
 
-    const endId = this._subscriber.addExternal(
-      this._endDraw.bind(this._typeClass),
-      "RIGHT_CLICK"
-    );
+    const endId = this._subscriber.addExternal(move => {
+      this._endDraw.call(this._typeClass, move);
+
+      if (this._type === "POINT") return;
+
+      once && this.pause();
+      // 如果不是点，此时result会有一个实体生成
+      this._viewer.entities.add(callback(this._typeClass.result));
+    }, "RIGHT_CLICK");
 
     this._events.push(startId, moveId, endId);
   }

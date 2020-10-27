@@ -1,16 +1,9 @@
 import * as Cesium from "cesium";
 
-import Painter from "./painter";
 import { Movement } from "@lib/typings/Event";
+import BasicGraphices from "./base";
 
-export default class Line {
-  pointer: Painter;
-  _terrain: boolean;
-  constructor(pointer: Painter, terrain: boolean) {
-    this.pointer = pointer;
-    this._terrain = terrain;
-  }
-
+export default class Line extends BasicGraphices {
   startDraw(event: Movement): void {
     // We use `viewer.scene.pickPosition` here instead of `viewer.camera.pickEllipsoid` so that
     // we get the correct point when mousing over terrain.
@@ -28,7 +21,7 @@ export default class Line {
           false
         );
         this.pointer._activeShape = this.pointer.finalized(
-          this.handler(dynamicPositions)
+          this.create(dynamicPositions)
         );
       }
       this.pointer._activeShapePoints.push(earthPosition);
@@ -54,7 +47,7 @@ export default class Line {
 
   endDraw(): void {
     this.pointer._activeShapePoints.pop();
-    this.pointer.finalized(this.handler(this.pointer._activeShapePoints));
+    this.result = this.create(this.pointer._activeShapePoints);
     this.pointer._viewer.entities.remove(this.pointer._floatingPoint);
     this.pointer._viewer.entities.remove(this.pointer._activeShape);
     this.pointer._floatingPoint = undefined;
@@ -62,15 +55,15 @@ export default class Line {
     this.pointer._activeShapePoints = [];
   }
 
-  handler(
+  create(
     hierarchy: Cesium.Cartesian3[] | Cesium.CallbackProperty
-  ): Cesium.Entity.ConstructorOptions {
-    return {
+  ): Cesium.Entity {
+    return new Cesium.Entity({
       polyline: {
         positions: hierarchy,
         clampToGround: true,
         width: 3
       }
-    };
+    });
   }
 }

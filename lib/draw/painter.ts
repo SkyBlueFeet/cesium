@@ -1,6 +1,5 @@
 import * as Cesium from "cesium";
 import { Entity } from "cesium";
-import { hierarchyHandler } from "@lib/typings/draw";
 
 export interface DrawOption {
   viewer: Cesium.Viewer;

@@ -1,16 +1,10 @@
 import * as Cesium from "cesium";
 
-import Painter from "./painter";
 import { Movement } from "@lib/typings/Event";
 
-export default class Polygon {
-  pointer: Painter;
-  _terrain: boolean;
-  constructor(pointer: Painter, terrain: boolean) {
-    this.pointer = pointer;
-    this._terrain = terrain;
-  }
+import BasicGraphices from "./base";
 
+export default class Polygon extends BasicGraphices {
   startDraw(event: Movement): void {
     // We use `viewer.scene.pickPosition` here instead of `viewer.camera.pickEllipsoid` so that
     // we get the correct point when mousing over terrain.
@@ -28,7 +22,7 @@ export default class Polygon {
           false
         );
         this.pointer._activeShape = this.pointer.finalized(
-          this.handler(dynamicPositions)
+          this.create(dynamicPositions)
         );
       }
       this.pointer._activeShapePoints.push(earthPosition);
@@ -54,7 +48,7 @@ export default class Polygon {
 
   endDraw(): void {
     this.pointer._activeShapePoints.pop();
-    this.pointer.finalized(this.handler(this.pointer._activeShapePoints));
+    this.result = this.create(this.pointer._activeShapePoints);
     this.pointer._viewer.entities.remove(this.pointer._floatingPoint);
     this.pointer._viewer.entities.remove(this.pointer._activeShape);
     this.pointer._floatingPoint = undefined;
@@ -62,10 +56,10 @@ export default class Polygon {
     this.pointer._activeShapePoints = [];
   }
 
-  handler(
+  create(
     hierarchy: Cesium.Cartesian3[] | Cesium.CallbackProperty
-  ): Cesium.Entity.ConstructorOptions {
-    return {
+  ): Cesium.Entity {
+    return new Cesium.Entity({
       polygon: {
         hierarchy: Array.isArray(hierarchy)
           ? new Cesium.PolygonHierarchy(hierarchy)
@@ -74,6 +68,6 @@ export default class Polygon {
           Cesium.Color.WHITE.withAlpha(0.7)
         )
       }
-    };
+    });
   }
 }
