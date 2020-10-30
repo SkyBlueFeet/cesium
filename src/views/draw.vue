@@ -11,19 +11,35 @@ export default class CeaiumDraw extends Vue {
   mounted() {
     const viewer = new Cesium.Viewer("cesium-container", {
       selectionIndicator: false,
-      infoBox: false,
-      terrainProvider: Cesium.createWorldTerrain()
+      infoBox: false
+      // terrainProvider: Cesium.createWorldTerrain()
     });
+
+    viewer.scene.screenSpaceCameraController.zoomEventTypes = [
+      Cesium.CameraEventType.WHEEL,
+      Cesium.CameraEventType.PINCH
+    ];
+
+    viewer.scene.screenSpaceCameraController.tiltEventTypes = [
+      Cesium.CameraEventType.PINCH,
+      Cesium.CameraEventType.RIGHT_DRAG
+    ];
 
     const t = new Draw({
       viewer,
-      type: "POLYGON",
-      terrain: true
+      type: "RECTANGLE",
+      // terrain: true,
+      keyboard: {
+        // END: "LEFT_DOUBLE_CLICK",
+        DESTROY: "MIDDLE_CLICK"
+      }
+      // action: (action, move) => {
+      //   console.log("Action", action, move);
+      // }
     });
-    t.start(entity => {
-      console.log(entity);
-      return entity;
-    }, true);
+    t.start(undefined, false, true);
+
+    // viewer.entities.add(circleEntity);
   }
 }
 </script>

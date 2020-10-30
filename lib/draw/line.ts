@@ -4,7 +4,7 @@ import { Movement } from "@lib/typings/Event";
 import BasicGraphices from "./base";
 
 export default class Line extends BasicGraphices {
-  startDraw(event: Movement): void {
+  dropPoint(event: Movement): void {
     // We use `viewer.scene.pickPosition` here instead of `viewer.camera.pickEllipsoid` so that
     // we get the correct point when mousing over terrain.
     const earthPosition = this._terrain
@@ -20,7 +20,7 @@ export default class Line extends BasicGraphices {
           () => this.pointer._activeShapePoints,
           false
         );
-        this.pointer._activeShape = this.pointer.finalized(
+        this.pointer._dynamicEntity = this.pointer.addView(
           this.create(dynamicPositions)
         );
       }
@@ -29,7 +29,7 @@ export default class Line extends BasicGraphices {
     }
   }
 
-  drawing(event: Movement): void {
+  moving(event: Movement): void {
     if (Cesium.defined(this.pointer._floatingPoint)) {
       const newPosition = this._terrain
         ? this.pointer._viewer.scene.pickPosition(event.endPosition)
@@ -45,14 +45,10 @@ export default class Line extends BasicGraphices {
     }
   }
 
-  endDraw(): void {
+  playOff(): void {
     this.pointer._activeShapePoints.pop();
     this.result = this.create(this.pointer._activeShapePoints);
-    this.pointer._viewer.entities.remove(this.pointer._floatingPoint);
-    this.pointer._viewer.entities.remove(this.pointer._activeShape);
-    this.pointer._floatingPoint = undefined;
-    this.pointer._activeShape = undefined;
-    this.pointer._activeShapePoints = [];
+    this.pointer.reset();
   }
 
   create(

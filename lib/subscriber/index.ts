@@ -94,6 +94,7 @@ export default class Subscriber {
   }
 
   private eventRegister(eventType: EventType): void {
+    if (this.isDestroy) return;
     const eventCollection = this.eventCollection[eventType];
     const externalEventCollection = this.externalEventCollection[eventType];
     this.handler.setInputAction((movement: Movement) => {
@@ -105,6 +106,8 @@ export default class Subscriber {
           val = iterator.next();
         }
       }
+
+      if (this.isDestroy) return;
 
       if (movement.position) {
         const entity: Entity = this.viewer.scene.pick(movement.position)?.id;

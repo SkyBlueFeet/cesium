@@ -2,10 +2,10 @@ import * as Cesium from "cesium";
 
 import { Movement } from "@lib/typings/Event";
 
-import BasicGraphices from "./base";
+import BasicGraphices, { LifeCycle } from "./base";
 
-export default class Polygon extends BasicGraphices {
-  startDraw(event: Movement): void {
+export default class Polygon extends BasicGraphices implements LifeCycle {
+  dropPoint(event: Movement): void {
     // We use `viewer.scene.pickPosition` here instead of `viewer.camera.pickEllipsoid` so that
     // we get the correct point when mousing over terrain.
     const earthPosition = this._terrain
@@ -21,8 +21,8 @@ export default class Polygon extends BasicGraphices {
           () => new Cesium.PolygonHierarchy(this.pointer._activeShapePoints),
           false
         );
-        this.pointer._activeShape = this.pointer.finalized(
-          this.create(dynamicPositions)
+        this.pointer._dynamicEntity = this.pointer.addView(
+          this.createShape(dynamicPositions)
         );
       }
       this.pointer._activeShapePoints.push(earthPosition);
@@ -30,7 +30,7 @@ export default class Polygon extends BasicGraphices {
     }
   }
 
-  drawing(event: Movement): void {
+  moving(event: Movement): void {
     if (Cesium.defined(this.pointer._floatingPoint)) {
       const newPosition = this._terrain
         ? this.pointer._viewer.scene.pickPosition(event.endPosition)
@@ -46,27 +46,21 @@ export default class Polygon extends BasicGraphices {
     }
   }
 
-  endDraw(): void {
+  playOff(): void {
     this.pointer._activeShapePoints.pop();
-    this.result = this.create(this.pointer._activeShapePoints);
-    this.pointer._viewer.entities.remove(this.pointer._floatingPoint);
-    this.pointer._viewer.entities.remove(this.pointer._activeShape);
-    this.pointer._floatingPoint = undefined;
-    this.pointer._activeShape = undefined;
-    this.pointer._activeShapePoints = [];
+
+    this.result = this.createShape(this.pointer._activeShapePoints);
+    this.pointer.reset();
   }
 
-  create(
+  createShape(
     hierarchy: Cesium.Cartesian3[] | Cesium.CallbackProperty
   ): Cesium.Entity {
     return new Cesium.Entity({
       polygon: {
         hierarchy: Array.isArray(hierarchy)
           ? new Cesium.PolygonHierarchy(hierarchy)
-          : hierarchy,
-        material: new Cesium.ColorMaterialProperty(
-          Cesium.Color.WHITE.withAlpha(0.7)
-        )
+          : hierarchy
       }
     });
   }

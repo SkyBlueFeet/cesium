@@ -1,30 +1,32 @@
 import { Movement } from "@lib/typings/Event";
-import * as Cesium from "cesium";
-import BasicGraphices from "./base";
+import { Cartesian3, defined, Entity, Color } from "cesium";
+import BasicGraphices, { LifeCycle } from "./base";
 
-export default class Point extends BasicGraphices {
-  startDraw(event: Movement): void {
+export default class Point extends BasicGraphices implements LifeCycle {
+  createShape: Function;
+  dropPoint(event: Movement): void {
     const earthPosition = this._terrain
       ? this.pointer._viewer.scene.pickPosition(event.position)
       : this.pointer._viewer.camera.pickEllipsoid(event.position);
 
-    if (Cesium.defined(earthPosition)) this.result = this.create(earthPosition);
+    if (defined(earthPosition)) this.result = this.create(earthPosition);
   }
 
-  drawing(): void {
+  moving(): void {
     return undefined;
   }
 
-  endDraw(): void {
+  playOff(): void {
+    this.pointer.reset();
     return undefined;
   }
 
-  create(hierarchy: Cesium.Cartesian3): Cesium.Entity {
-    return new Cesium.Entity({
+  create(hierarchy: Cartesian3): Entity {
+    return new Entity({
       position: hierarchy,
       point: {
-        color: Cesium.Color.RED,
-        pixelSize: 10
+        pixelSize: 10,
+        color: Color.RED
       }
     });
   }

@@ -1,46 +1,33 @@
 import * as Cesium from "cesium";
 import { Entity } from "cesium";
+import { Movement } from "@lib/typings/Event";
 
-export interface DrawOption {
+interface DrawOption {
   viewer: Cesium.Viewer;
-  type?: "POLYGON" | "LINE" | "POINT";
   terrain?: boolean;
-  once?: boolean;
 }
 
 export default class Painter {
   _viewer: Cesium.Viewer;
-  _type: DrawOption["type"];
+  _terrain: boolean;
 
   _activeShapePoints: Cesium.Cartesian3[] = [];
-  _activePoint: Cesium.Cartesian3 = new Cesium.Cartesian3();
+  _activePoint: Cesium.Cartesian3 = Cesium.Cartesian3.ZERO;
 
-  _activeShape: Entity;
+  _dynamicEntity: Entity;
   _floatingPoint: Entity;
 
   constructor(options: DrawOption) {
     this._viewer = options.viewer;
-
-    this._type = options.type || "POLYGON";
-
-    // Zoom in to an area with mountains
-    this.setCamera();
+    this._terrain = options.terrain;
   }
 
-  setCamera(): void {
-    this._viewer.camera.lookAt(
-      Cesium.Cartesian3.fromDegrees(-122.2058, 46.1955, 1000.0),
-      new Cesium.Cartesian3(5000.0, 5000.0, 5000.0)
-    );
-    this._viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-  }
-
-  finalized(entity: Entity | Entity.ConstructorOptions): Cesium.Entity {
+  addView(entity: Entity | Entity.ConstructorOptions): Cesium.Entity {
     return this._viewer.entities.add(entity);
   }
 
   createPoint(worldPosition: Cesium.Cartesian3): Cesium.Entity {
-    return this._viewer.entities.add({
+    return new Entity({
       position: worldPosition,
       point: {
         color: Cesium.Color.WHITE,
@@ -48,5 +35,22 @@ export default class Painter {
         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
       }
     });
+  }
+
+  calcPositions(event: Movement): Cesium.Cartesian3 {
+    return this._terrain
+      ? this._viewer.scene.pickPosition(event.position)
+      : this._viewer.camera.pickEllipsoid(event.position);
+  }
+
+  reset(): void {
+    this._viewer.entities.remove(this._floatingPoint);
+    this._viewer.entities.remove(this._dynamicEntity);
+
+    this._floatingPoint = undefined;
+    this._dynamicEntity = undefined;
+
+    this._activeShapePoints = [];
+    this._activePoint = Cesium.Cartesian3.ZERO;
   }
 }
