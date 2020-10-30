@@ -7,7 +7,9 @@ import {
   PolygonGraphics,
   Color,
   Cartesian3,
-  Matrix4
+  Matrix4,
+  EllipseGraphics,
+  RectangleGraphics
 } from "cesium";
 
 import Subscriber, { EventType } from "@lib/subscriber";
@@ -55,14 +57,23 @@ export interface DrawOption {
   type: DrawType | "POLYGON" | "LINE" | "POINT" | "CIRCLE" | "RECTANGLE";
   terrain?: boolean;
   keyboard?: Keyboard;
-  graphicsOptions?: {
+  dynamicGraphicsOptions?: {
     POINT?: PointGraphics.ConstructorOptions;
     LINE?: PolylineGraphics.ConstructorOptions;
     POLYGON?: PolygonGraphics.ConstructorOptions;
+    CIRCLE?: EllipseGraphics.ConstructorOptions;
+    RECTANGLE?: RectangleGraphics.ConstructorOptions;
   };
   action?: ActionCallback;
   override?: OverrideEntities;
 }
+
+type StartOption = {
+  type: DrawType | "POLYGON" | "LINE" | "POINT" | "CIRCLE" | "RECTANGLE";
+  once?: boolean;
+  oneInstance?: boolean;
+  override?: OverrideEntities;
+};
 
 type Optional<T> = {
   [U in keyof T]?: T[U] extends object ? Optional<T[U]> : T[U];
@@ -74,15 +85,12 @@ const defaultOptions: Optional<DrawOption> = {
     START: "LEFT_CLICK",
     END: "RIGHT_CLICK"
   },
-  graphicsOptions: {
-    LINE: { clampToGround: true, width: 3 },
-    POLYGON: {
-      material: Color.WHITE.withAlpha(0.7)
-    },
-    POINT: {
-      color: Color.RED,
-      pixelSize: 10
-    }
+  dynamicGraphicsOptions: {
+    LINE: { clampToGround: true, width: 4, material: Color.RED.withAlpha(0.5) },
+    POLYGON: { material: Color.YELLOW.withAlpha(0.7) },
+    POINT: { color: Color.RED, pixelSize: 50 },
+    RECTANGLE: { material: Color.RED.withAlpha(0.5) },
+    CIRCLE: { material: Color.RED.withAlpha(0.5), outline: true }
   }
 };
 
@@ -104,9 +112,11 @@ export default class Draw {
 
   private $Instance: Entity;
 
-  private readonly _dropPoint: (move: Movement) => void;
-  private readonly _moving: (move: Movement) => void;
-  private readonly _playOff: (move: Movement) => void;
+  private _dynamicGraphicsOptions: DrawOption["dynamicGraphicsOptions"];
+
+  private dropPoint: (move: Movement) => void;
+  private moving: (move: Movement) => void;
+  private playOff: (move: Movement) => void;
 
   private _keyboard: Keyboard;
 
@@ -131,29 +141,14 @@ export default class Draw {
 
     this._action = this._option.action;
 
-    const painterOptions = { viewer: this._viewer, terrain: this._terrain };
+    this._dynamicGraphicsOptions = this._option.dynamicGraphicsOptions;
 
-    this._type =
-      typeof options.type === "string" ? DrawType[options.type] : options.type;
-    this._painter = new Painter(painterOptions);
-
-    if (this._type === DrawType.POLYGON) {
-      this._typeClass = new Polygon(this._painter);
-    } else if (this._type === DrawType.LINE) {
-      this._typeClass = new Line(this._painter);
-    } else if (this._type === DrawType.POINT) {
-      this._typeClass = new Point(this._painter);
-    } else if (this._type === DrawType.CIRCLE) {
-      this._typeClass = new Circle(this._painter);
-    } else if (this._type === DrawType.RECTANGLE) {
-      this._typeClass = new Rectangle(this._painter);
-    } else {
-      throw new Error(`the type '${this._type}' is not support`);
+    if (this._terrain && !this._viewer.scene.pickPositionSupported) {
+      console.warn("This browser does not support pickPosition.");
+      this._terrain = false;
     }
 
-    this._dropPoint = this._typeClass.dropPoint;
-    this._moving = this._typeClass.moving;
-    this._playOff = this._typeClass.playOff;
+    // this.initPainter();
 
     this._subscriber = new Subscriber(this._viewer);
 
@@ -164,10 +159,6 @@ export default class Draw {
     );
 
     // console.log(picker);
-    if (this._terrain && !this._viewer.scene.pickPositionSupported) {
-      console.warn("This browser does not support pickPosition.");
-      this._terrain = false;
-    }
 
     // Zoom in to an area with mountains
     this.setCamera();
@@ -177,7 +168,51 @@ export default class Draw {
     }, this._keyboard.DESTROY);
   }
 
-  start(override?: OverrideEntities, once = false, oneInstance = false): void {
+  initPainter(options: StartOption): void {
+    const painterOptions = { viewer: this._viewer, terrain: this._terrain };
+
+    this._painter = new Painter(painterOptions);
+
+    this._type =
+      typeof options.type === "string" ? DrawType[options.type] : options.type;
+
+    if (this._type === DrawType.POLYGON) {
+      this._typeClass = new Polygon(
+        this._painter,
+        this._dynamicGraphicsOptions.POLYGON
+      );
+    } else if (this._type === DrawType.LINE) {
+      this._typeClass = new Line(
+        this._painter,
+        this._dynamicGraphicsOptions.LINE
+      );
+    } else if (this._type === DrawType.POINT) {
+      this._typeClass = new Point(
+        this._painter,
+        this._dynamicGraphicsOptions.POINT
+      );
+    } else if (this._type === DrawType.CIRCLE) {
+      this._typeClass = new Circle(
+        this._painter,
+        this._dynamicGraphicsOptions.CIRCLE
+      );
+    } else if (this._type === DrawType.RECTANGLE) {
+      this._typeClass = new Rectangle(
+        this._painter,
+        this._dynamicGraphicsOptions.RECTANGLE
+      );
+    } else {
+      throw new Error(`the type '${this._type}' is not support`);
+    }
+
+    this.dropPoint = this._typeClass.dropPoint;
+    this.moving = this._typeClass.moving;
+    this.playOff = this._typeClass.playOff;
+  }
+
+  start(config: StartOption, options: object = {}): void {
+    this.initPainter(config);
+
     if (this._status === "START") return;
 
     this._status = "START";
@@ -187,14 +222,14 @@ export default class Draw {
     const startId = this._subscriber.addExternal(move => {
       isStartDrow = true;
 
-      this._dropPoint.call(this._typeClass, move);
+      this.dropPoint.call(this._typeClass, move);
 
       if (this._action) this._action(this._keyboard.START, move);
 
       // 如果是点，则此时执行点的结束绘制操作
-      if (this._type !== "POINT") return;
+      if (this._type !== DrawType.POINT) return;
 
-      this.complete(override, once, oneInstance);
+      this.complete(config.override, config.once, config.oneInstance);
 
       isStartDrow = false;
     }, this._keyboard.START);
@@ -202,7 +237,7 @@ export default class Draw {
     const moveId = this._subscriber.addExternal(move => {
       if (!isStartDrow) return;
 
-      this._moving.call(this._typeClass, move);
+      this.moving.call(this._typeClass, move);
 
       // ActionCallback
       if (this._action) this._action("MOUSE_MOVE", move);
@@ -213,14 +248,14 @@ export default class Draw {
       if (!isStartDrow) return;
 
       // 结束绘制，确定实体
-      this._playOff.call(this._typeClass, move);
+      this.playOff.call(this._typeClass, move);
 
       // ActionCallback
       if (this._action) this._action(this._keyboard.END, move);
 
-      if (this._type === "POINT") return;
+      if (this._type === DrawType.POINT) return;
 
-      this.complete(override, once, oneInstance);
+      this.complete(config.override, config.once, config.oneInstance);
 
       isStartDrow = false;
     }, this._option.keyboard.END);

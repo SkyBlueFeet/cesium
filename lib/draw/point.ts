@@ -1,15 +1,24 @@
 import { Movement } from "@lib/typings/Event";
-import { Cartesian3, defined, Entity, Color } from "cesium";
+import { Cartesian3, defined, Entity, Color, PointGraphics } from "cesium";
 import BasicGraphices, { LifeCycle } from "./base";
-
+import Painter from "./painter";
+import merge from "lodash.merge";
 export default class Point extends BasicGraphices implements LifeCycle {
-  createShape: Function;
-  dropPoint(event: Movement): void {
-    const earthPosition = this._terrain
-      ? this.pointer._viewer.scene.pickPosition(event.position)
-      : this.pointer._viewer.camera.pickEllipsoid(event.position);
+  _options: PointGraphics.ConstructorOptions;
 
-    if (defined(earthPosition)) this.result = this.create(earthPosition);
+  constructor(
+    painter: Painter,
+    options: PointGraphics.ConstructorOptions = {}
+  ) {
+    super(painter);
+    this._options = options;
+  }
+
+  dropPoint(event: Movement): void {
+    const earthPosition = this.pointer.calcPositions(event.position);
+
+    if (defined(earthPosition))
+      this.result = this.createDynamicShape(earthPosition);
   }
 
   moving(): void {
@@ -21,13 +30,8 @@ export default class Point extends BasicGraphices implements LifeCycle {
     return undefined;
   }
 
-  create(hierarchy: Cartesian3): Entity {
-    return new Entity({
-      position: hierarchy,
-      point: {
-        pixelSize: 10,
-        color: Color.RED
-      }
-    });
+  createDynamicShape(position: Cartesian3, isDynamic = false): Entity {
+    const point = merge({}, this._options);
+    return new Entity({ position, point });
   }
 }

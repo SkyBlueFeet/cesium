@@ -1,65 +1,33 @@
 import * as Cesium from "cesium";
-
+import { PolylineGraphics } from "cesium";
 import { Movement } from "@lib/typings/Event";
 import BasicGraphices from "./base";
-
+import Painter from "./painter";
+import merge from "lodash.merge";
 export default class Line extends BasicGraphices {
-  dropPoint(event: Movement): void {
-    // We use `viewer.scene.pickPosition` here instead of `viewer.camera.pickEllipsoid` so that
-    // we get the correct point when mousing over terrain.
-    const earthPosition = this._terrain
-      ? this.pointer._viewer.scene.pickPosition(event.position)
-      : this.pointer._viewer.camera.pickEllipsoid(event.position);
+  _options: PolylineGraphics.ConstructorOptions;
 
-    // `earthPosition` will be undefined if our mouse is not over the globe.
-    if (Cesium.defined(earthPosition)) {
-      if (this.pointer._activeShapePoints.length === 0) {
-        this.pointer._floatingPoint = this.pointer.createPoint(earthPosition);
-        this.pointer._activeShapePoints.push(earthPosition);
-        const dynamicPositions = new Cesium.CallbackProperty(
-          () => this.pointer._activeShapePoints,
-          false
-        );
-        this.pointer._dynamicEntity = this.pointer.addView(
-          this.create(dynamicPositions)
-        );
-      }
-      this.pointer._activeShapePoints.push(earthPosition);
-      this.pointer.createPoint(earthPosition);
-    }
+  constructor(
+    painter: Painter,
+    options: PolylineGraphics.ConstructorOptions = {}
+  ) {
+    super(painter);
+    this._options = options;
   }
 
-  moving(event: Movement): void {
-    if (Cesium.defined(this.pointer._floatingPoint)) {
-      const newPosition = this._terrain
-        ? this.pointer._viewer.scene.pickPosition(event.endPosition)
-        : this.pointer._viewer.camera.pickEllipsoid(event.endPosition);
-
-      if (Cesium.defined(newPosition)) {
-        this.pointer._floatingPoint.position = new Cesium.ConstantPositionProperty(
-          newPosition
-        );
-        this.pointer._activeShapePoints.pop();
-        this.pointer._activeShapePoints.push(newPosition);
-      }
-    }
+  dropPoint(event: Movement): void {
+    this._dropPoint(event, this.createShape.bind(this));
   }
 
   playOff(): void {
-    this.pointer._activeShapePoints.pop();
-    this.result = this.create(this.pointer._activeShapePoints);
-    this.pointer.reset();
+    this._playOff(this.createShape.bind(this));
   }
 
-  create(
-    hierarchy: Cesium.Cartesian3[] | Cesium.CallbackProperty
+  createShape(
+    positions: Cesium.Cartesian3[] | Cesium.CallbackProperty,
+    isDynamic = false
   ): Cesium.Entity {
-    return new Cesium.Entity({
-      polyline: {
-        positions: hierarchy,
-        clampToGround: true,
-        width: 3
-      }
-    });
+    const polyline = merge({}, this._options, { positions });
+    return new Cesium.Entity({ polyline });
   }
 }

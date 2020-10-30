@@ -1,6 +1,5 @@
 import * as Cesium from "cesium";
 import { Entity } from "cesium";
-import { Movement } from "@lib/typings/Event";
 
 interface DrawOption {
   viewer: Cesium.Viewer;
@@ -12,10 +11,10 @@ export default class Painter {
   _terrain: boolean;
 
   _activeShapePoints: Cesium.Cartesian3[] = [];
-  _activePoint: Cesium.Cartesian3 = Cesium.Cartesian3.ZERO;
 
-  _dynamicEntity: Entity;
-  _floatingPoint: Entity;
+  _dynamicShapeEntity: Entity;
+
+  _breakPointEntities: Entity[] = [];
 
   constructor(options: DrawOption) {
     this._viewer = options.viewer;
@@ -37,20 +36,24 @@ export default class Painter {
     });
   }
 
-  calcPositions(event: Movement): Cesium.Cartesian3 {
+  calcPositions(position: Cesium.Cartesian2): Cesium.Cartesian3 {
+    // We use `viewer.scene.pickPosition` here instead of `viewer.camera.pickEllipsoid` so that
+    // we get the correct point when mousing over terrain.
     return this._terrain
-      ? this._viewer.scene.pickPosition(event.position)
-      : this._viewer.camera.pickEllipsoid(event.position);
+      ? this._viewer.scene.pickPosition(position)
+      : this._viewer.camera.pickEllipsoid(position);
   }
 
   reset(): void {
-    this._viewer.entities.remove(this._floatingPoint);
-    this._viewer.entities.remove(this._dynamicEntity);
+    this._viewer.entities.remove(this._dynamicShapeEntity);
 
-    this._floatingPoint = undefined;
-    this._dynamicEntity = undefined;
+    this._dynamicShapeEntity = undefined;
+
+    while (this._breakPointEntities.length) {
+      this._viewer.entities.remove(this._breakPointEntities.pop());
+    }
 
     this._activeShapePoints = [];
-    this._activePoint = Cesium.Cartesian3.ZERO;
+    // this._activePoint = Cesium.Cartesian3.ZERO;
   }
 }
