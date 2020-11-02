@@ -26,10 +26,11 @@ type OverrideEntities = (
   this: Draw,
   action: EventType,
   entity: Entity
-) => Entity;
+) => Entity | void;
 
 export type Keyboard = {
   START?: EventType;
+  MOVING?: EventType;
   END?: EventType;
   DESTROY?: EventType;
 };
@@ -54,7 +55,6 @@ export enum DrawType {
 
 export interface DrawOption {
   viewer: Viewer;
-  type: DrawType | "POLYGON" | "LINE" | "POINT" | "CIRCLE" | "RECTANGLE";
   terrain?: boolean;
   keyboard?: Keyboard;
   dynamicGraphicsOptions?: {
@@ -65,14 +65,15 @@ export interface DrawOption {
     RECTANGLE?: RectangleGraphics.ConstructorOptions;
   };
   action?: ActionCallback;
-  override?: OverrideEntities;
+  sameStyle?: boolean;
 }
 
 type StartOption = {
-  type: DrawType | "POLYGON" | "LINE" | "POINT" | "CIRCLE" | "RECTANGLE";
+  type: "POLYGON" | "LINE" | "POINT" | "CIRCLE" | "RECTANGLE";
   once?: boolean;
   oneInstance?: boolean;
-  override?: OverrideEntities;
+  options?: object;
+  dynamicOptions?: object;
 };
 
 type Optional<T> = {
@@ -83,20 +84,27 @@ const defaultOptions: Optional<DrawOption> = {
   terrain: false,
   keyboard: {
     START: "LEFT_CLICK",
-    END: "RIGHT_CLICK"
+    MOVING: "MOUSE_MOVE",
+    END: "RIGHT_CLICK",
+    DESTROY: "MIDDLE_CLICK"
   },
   dynamicGraphicsOptions: {
-    LINE: { clampToGround: true, width: 4, material: Color.RED.withAlpha(0.5) },
-    POLYGON: { material: Color.YELLOW.withAlpha(0.7) },
-    POINT: { color: Color.RED, pixelSize: 50 },
-    RECTANGLE: { material: Color.RED.withAlpha(0.5) },
-    CIRCLE: { material: Color.RED.withAlpha(0.5), outline: true }
-  }
+    LINE: {
+      clampToGround: true,
+      width: 4,
+      material: Color.WHITE.withAlpha(0.4)
+    },
+    POLYGON: { material: Color.WHITE.withAlpha(0.4) },
+    POINT: { color: Color.WHITE.withAlpha(0.4), pixelSize: 50 },
+    RECTANGLE: { material: Color.WHITE.withAlpha(0.4) },
+    CIRCLE: { material: Color.WHITE.withAlpha(0.4), outline: true }
+  },
+  sameStyle: true
 };
 
 export default class Draw {
   private _viewer: Viewer;
-  private _type: DrawOption["type"];
+  private _type: StartOption["type"];
   private _terrain: boolean;
   private _subscriber: Subscriber;
 
@@ -121,6 +129,8 @@ export default class Draw {
   private _keyboard: Keyboard;
 
   private _action: ActionCallback;
+
+  private _sameStyle: boolean;
 
   get status(): Status {
     return this._status;
@@ -168,39 +178,35 @@ export default class Draw {
     }, this._keyboard.DESTROY);
   }
 
-  initPainter(options: StartOption): void {
+  initPainter(
+    config: StartOption,
+    extraOptions?: object,
+    dynamicOptions?: object
+  ): void {
     const painterOptions = { viewer: this._viewer, terrain: this._terrain };
 
     this._painter = new Painter(painterOptions);
 
-    this._type =
-      typeof options.type === "string" ? DrawType[options.type] : options.type;
+    this._type = config.type;
 
-    if (this._type === DrawType.POLYGON) {
-      this._typeClass = new Polygon(
-        this._painter,
-        this._dynamicGraphicsOptions.POLYGON
-      );
-    } else if (this._type === DrawType.LINE) {
-      this._typeClass = new Line(
-        this._painter,
-        this._dynamicGraphicsOptions.LINE
-      );
-    } else if (this._type === DrawType.POINT) {
-      this._typeClass = new Point(
-        this._painter,
-        this._dynamicGraphicsOptions.POINT
-      );
-    } else if (this._type === DrawType.CIRCLE) {
-      this._typeClass = new Circle(
-        this._painter,
-        this._dynamicGraphicsOptions.CIRCLE
-      );
-    } else if (this._type === DrawType.RECTANGLE) {
-      this._typeClass = new Rectangle(
-        this._painter,
-        this._dynamicGraphicsOptions.RECTANGLE
-      );
+    this._sameStyle = this._option.sameStyle;
+
+    const $flag = this._sameStyle
+      ? false
+      : merge({}, this._dynamicGraphicsOptions[this._type], dynamicOptions);
+
+    const $options = extraOptions;
+
+    if (this._type === "POLYGON") {
+      this._typeClass = new Polygon(this._painter, $options, $flag);
+    } else if (this._type === "LINE") {
+      this._typeClass = new Line(this._painter, $options, $flag);
+    } else if (this._type === "POINT") {
+      this._typeClass = new Point(this._painter, $options);
+    } else if (this._type === "CIRCLE") {
+      this._typeClass = new Circle(this._painter, $options, $flag);
+    } else if (this._type === "RECTANGLE") {
+      this._typeClass = new Rectangle(this._painter, $options, $flag);
     } else {
       throw new Error(`the type '${this._type}' is not support`);
     }
@@ -210,8 +216,10 @@ export default class Draw {
     this.playOff = this._typeClass.playOff;
   }
 
-  start(config: StartOption, options: object = {}): void {
-    this.initPainter(config);
+  start(config: StartOption, override?: OverrideEntities): void {
+    this.initPainter(config, config.options, config.dynamicOptions);
+
+    // this._typeClass.options = merge({}, options, this._typeClass.options);
 
     if (this._status === "START") return;
 
@@ -227,9 +235,9 @@ export default class Draw {
       if (this._action) this._action(this._keyboard.START, move);
 
       // 如果是点，则此时执行点的结束绘制操作
-      if (this._type !== DrawType.POINT) return;
+      if (this._type !== "POINT") return;
 
-      this.complete(config.override, config.once, config.oneInstance);
+      this.complete(override, config.once, config.oneInstance);
 
       isStartDrow = false;
     }, this._keyboard.START);
@@ -253,9 +261,9 @@ export default class Draw {
       // ActionCallback
       if (this._action) this._action(this._keyboard.END, move);
 
-      if (this._type === DrawType.POINT) return;
+      if (this._type === "POINT") return;
 
-      this.complete(config.override, config.once, config.oneInstance);
+      this.complete(override, config.once, config.oneInstance);
 
       isStartDrow = false;
     }, this._option.keyboard.END);

@@ -27,25 +27,18 @@ export default class CeaiumDraw extends Vue {
 
     const t = new Draw({
       viewer,
-      type: DrawType.CIRCLE,
       terrain: true,
-      keyboard: {
-        // END: "LEFT_DOUBLE_CLICK",
-        DESTROY: "MIDDLE_CLICK"
-      },
-      dynamicGraphicsOptions: {
-        POLYGON: {
-          material: Cesium.Color.PINK.withAlpha(0.6)
-        },
-        POINT: {
-          color: Cesium.Color.BLUE.withAlpha(0.5)
-        },
-        CIRCLE: {
-          outlineColor: Cesium.Color.ORANGE.withAlpha(0.7)
-        }
-      }
+      sameStyle: true
     });
-    t.start({ type: "POLYGON" }, undefined);
+    t.start(
+      {
+        type: "RECTANGLE"
+      },
+      (action, entity) => {
+        console.log(action, entity);
+        return entity;
+      }
+    );
 
     // viewer.entities.add(circleEntity);
   }

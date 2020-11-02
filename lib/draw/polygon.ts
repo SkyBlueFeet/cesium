@@ -9,15 +9,6 @@ import merge from "lodash.merge";
 import Painter from "./painter";
 
 export default class Polygon extends BasicGraphices implements LifeCycle {
-  private _options: RectangleGraphics.ConstructorOptions = {};
-  constructor(
-    painter: Painter,
-    options: RectangleGraphics.ConstructorOptions = {}
-  ) {
-    super(painter);
-    this._options = options;
-  }
-
   dropPoint(event: Movement): void {
     const earthPosition = this.pointer.calcPositions(event.position);
 
@@ -29,7 +20,7 @@ export default class Polygon extends BasicGraphices implements LifeCycle {
           false
         );
         this.pointer._dynamicShapeEntity = this.pointer.addView(
-          this.createShape(dynamicPositions)
+          this.createShape(dynamicPositions, true)
         );
       }
 
@@ -45,11 +36,16 @@ export default class Polygon extends BasicGraphices implements LifeCycle {
     hierarchy: Cesium.Cartesian3[] | Cesium.CallbackProperty,
     isDynamic = false
   ): Cesium.Entity {
-    const polygon = merge({}, this._options, {
-      hierarchy: Array.isArray(hierarchy)
-        ? new Cesium.PolygonHierarchy(hierarchy)
-        : hierarchy
-    });
+    const polygon = merge(
+      {},
+      isDynamic && !this.sameStyle ? this.dynamicOptions : this.options,
+      {
+        hierarchy: Array.isArray(hierarchy)
+          ? new Cesium.PolygonHierarchy(hierarchy)
+          : hierarchy
+      }
+    );
+
     return new Cesium.Entity({ polygon });
   }
 }

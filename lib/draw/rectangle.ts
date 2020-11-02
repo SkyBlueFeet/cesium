@@ -13,15 +13,6 @@ import Painter from "./painter";
 import merge from "lodash.merge";
 
 export default class Rectangle extends BasicGraphices implements LifeCycle {
-  private _options: RectangleGraphics.ConstructorOptions = {};
-  constructor(
-    painter: Painter,
-    options: RectangleGraphics.ConstructorOptions = {}
-  ) {
-    super(painter);
-    this._options = options;
-  }
-
   dropPoint(move: Movement): void {
     this._dropPoint(move, this.createShape.bind(this));
   }
@@ -38,14 +29,17 @@ export default class Rectangle extends BasicGraphices implements LifeCycle {
       ? hierarchy
       : hierarchy.getValue(JulianDate.now());
 
-    const rectangle = merge({}, this._options, {
-      coordinates: new CallbackProperty(function() {
-        const obj = CesiumRectangle.fromCartesianArray(target);
-        // if(obj.west==obj.east){ obj.east+=0.000001};
-        // if(obj.south==obj.north){obj.north+=0.000001};
-        return obj;
-      }, false)
-    });
+    const rectangle = merge(
+      {},
+      isDynamic && !this.sameStyle ? this.dynamicOptions : this.options,
+      {
+        coordinates: new CallbackProperty(function() {
+          const obj = CesiumRectangle.fromCartesianArray(target);
+          return obj;
+        }, false)
+      }
+    );
+
     return new Entity({ rectangle });
   }
 }

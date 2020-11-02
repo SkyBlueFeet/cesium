@@ -13,9 +13,22 @@ export default class BasicGraphices {
   result: Entity;
   pointer: Painter;
   _terrain: boolean;
-  constructor(pointer: Painter) {
-    this.pointer = pointer;
-    this._terrain = pointer._terrain;
+  options: object;
+
+  dynamicOptions: object = {};
+  sameStyle: boolean;
+  // constructor(pointer: Painter) {
+  //   this.pointer = pointer;
+  //   this._terrain = pointer._terrain;
+  // }
+
+  constructor(painter: Painter, options: object = {}, flag?: object | true) {
+    this.pointer = painter;
+    this._terrain = painter._terrain;
+    this.options = options;
+
+    this.dynamicOptions = typeof flag === "object" ? flag : {};
+    this.sameStyle = typeof flag === "boolean" ? flag : false;
   }
 
   _dropPoint(move: Movement, createShape: Function): void {
@@ -68,7 +81,7 @@ export default class BasicGraphices {
       return this.pointer._activeShapePoints;
     }, false);
 
-    this.pointer._dynamicShapeEntity = createShape(dynamicPositions);
+    this.pointer._dynamicShapeEntity = createShape(dynamicPositions, true);
     this.pointer.addView(this.pointer._dynamicShapeEntity);
     return undefined;
   }
